@@ -1,10 +1,12 @@
-import bodyParser from "body-parser";
-import express from "express";
-import Person from "../controllers/PersonController";
+const express = require("express");
+const bodyParser = require("body-parser");
+const person = require("./PersonRouter.js")
 
-const route = express.Router()
+const routes = (app) => {
+    app.use(
+        bodyParser.json(),
+        person
+    )
+}
 
-app.route('/')
-    .get(Person.getPeople())
-
-export default app
+module.exports = routes
