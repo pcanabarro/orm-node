@@ -32,9 +32,9 @@ module.exports = class Person {
 
     static async updatePerson(req, res) {
         const { id } = req.params //same thing as req.params.id
-        const dataUpdate = req.body
+        const info = req.body
         try {
-            await database.Person.update(dataUpdate, { where: { id: Number(id) } })
+            await database.Person.update(info, { where: { id: Number(id) } })
             const updatedPerson = await database.Person.findOne({ where: { id: Number(id) } })
             return res.status(200).json({ data: updatedPerson })
         } catch (err) {
