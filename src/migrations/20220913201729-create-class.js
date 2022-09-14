@@ -8,8 +8,18 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      initial_date: {
+      teacher_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'People', key: 'id'}
+      },
+      date: {
         type: Sequelize.DATEONLY
+      },
+      level_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'Levels', key: 'id'}
       },
       createdAt: {
         allowNull: false,
