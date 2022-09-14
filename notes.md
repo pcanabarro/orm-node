@@ -1,3 +1,6 @@
+ORM NODE
+Object-relational mapping
+
 connecting db with sequelize, every time that you update something in command line, will update on db
 
 [SEQUELIZE]
