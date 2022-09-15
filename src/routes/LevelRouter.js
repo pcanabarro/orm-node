@@ -12,4 +12,7 @@ router.route("/level/:id")
     .put(levelController.updateLevel)
     .delete(levelController.deleteLevel)
 
+router
+    .post("/level/:id/restore", levelController.restoreLevel)
+
 module.exports = router

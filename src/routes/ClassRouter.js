@@ -11,5 +11,8 @@ router.route("/class/:id")
     .get(classController.getClass)
     .put(classController.updateClass)
     .delete(classController.deleteClass)
+    
+router
+    .post("/class/:id/restore", classController.restoreClass)
 
 module.exports = router

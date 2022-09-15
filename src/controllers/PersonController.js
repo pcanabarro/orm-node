@@ -57,6 +57,16 @@ module.exports = class Person {
         }
     }
 
+    static async restorePerson(req, res) {
+        const { id } = req.params
+        try {
+            await database.Person.restore({ where: { id: Number(id) } })
+            return res.status(200).json({ data: "Person restored!", restoredPerson })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
+
     ///person/1/enrollment/5
     static async getEnrollment(req, res) {
         const { studentId, enrollmentId } = req.params
@@ -110,9 +120,24 @@ module.exports = class Person {
         const { studentId, enrollmentId } = req.params
         try {
             const enrollment = await database.Enrollment.destroy({ where: { id: Number(enrollmentId) } })
-        return res.status(200).json({ data: "Enrollment Deleted!" })
-    } catch(err) {
-        return res.status(500).json({ data: err.message })
+            return res.status(200).json({ data: "Enrollment Deleted!" })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
     }
-}
+
+    static async restoreEnrollment(req, res) {
+        const { studentId, enrollmentId } = req.params
+        try {
+            await database.Enrollment.restore({
+                where: {
+                    id: Number(enrollmentId),
+                    student_id: Number(studentId)
+                }
+            })
+            return res.status(200).json({ data: "Enrollment restored!", restoredEnrollment })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
 }
