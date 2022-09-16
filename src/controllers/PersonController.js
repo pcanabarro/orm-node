@@ -1,9 +1,19 @@
 const database = require("../models/index.js");
 
 module.exports = class Person {
+    static async getActivePeople(req, res) {
+        try {
+            const activePeople = await database.Person.findAll()
+            return res.status(200).json({ data: activePeople });
+
+        } catch (err) {
+            return res.status(500).json({ data: err.message });
+        }
+    }
+
     static async getPeople(req, res) {
         try {
-            const allPeople = await database.Person.findAll()
+            const allPeople = await database.Person.scope('all').findAll()
             return res.status(200).json({ data: allPeople });
 
         } catch (err) {

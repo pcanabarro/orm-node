@@ -4,8 +4,11 @@ const personController = require("../controllers/PersonController.js");
 const router = express.Router()
 
 router.route("/person")
-    .get(personController.getPeople)
+    .get(personController.getActivePeople)
     .post(personController.createPerson)
+
+router
+    .get("/person/all", personController.getPeople)
 
 router.route("/person/:id")
     .get(personController.getPerson)
