@@ -3,20 +3,18 @@ const personController = require("../controllers/PersonController.js");
 
 const router = express.Router()
 
-router.route("/person")
-    .get(personController.getActivePeople)
-    .post(personController.createPerson)
-
 router
-    .get("/person/all", personController.getPeople)
-
-router.route("/person/:id")
-    .get(personController.getPerson)
-    .put(personController.updatePerson)
-    .delete(personController.deletePerson)
-    
-router
+    .get("/person", personController.getPeople)
+    .post("/person", personController.createPerson)
+    .get("/person/active", personController.getActivePeople)
+    .get("/person/enrollment/full", personController.getFullClasses)
+    .get("/person/enrollment/:classId/active", personController.getEnrollmentByClass)
+    .get("/person/:id", personController.getPerson)
+    .put("/person/:id", personController.updatePerson)
+    .delete("/person/:id", personController.deletePerson)
     .post("/person/:id/restore", personController.restorePerson)
+    .get("/person/:studentId/enrollment", personController.getEnrollments)
+    .post("/person/:studentId/cancel", personController.cancelPerson)
     .post("/person/:studentId/enrollment", personController.createEnrollment)
     .get("/person/:studentId/enrollment/:enrollmentId", personController.getEnrollment)
     .put("/person/:studentId/enrollment/:enrollmentId", personController.updateEnrollment)

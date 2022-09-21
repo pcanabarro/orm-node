@@ -1,9 +1,10 @@
-const database = require("../models/index.js");
+const { PeopleServices } = require("../services");
+const peopleServices = new PeopleServices();
 
 module.exports = class Person {
     static async getActivePeople(req, res) {
         try {
-            const activePeople = await database.Person.findAll()
+            const activePeople = await peopleServices.getActiveRegisters() //calling the service referring to Person database and the respective method (getAll)
             return res.status(200).json({ data: activePeople });
 
         } catch (err) {
@@ -13,7 +14,7 @@ module.exports = class Person {
 
     static async getPeople(req, res) {
         try {
-            const allPeople = await database.Person.scope('all').findAll()
+            const allPeople = await peopleServices.getAllRegisters()
             return res.status(200).json({ data: allPeople });
 
         } catch (err) {
@@ -24,7 +25,7 @@ module.exports = class Person {
     static async getPerson(req, res) {
         const { id } = req.params
         try {
-            const person = await database.Person.findOne({ where: { id: Number(id) } })
+            const person = await peopleServices.getOneRegister(Number(id))
             return res.status(200).json({ data: person })
 
         } catch (err) {
@@ -35,7 +36,7 @@ module.exports = class Person {
     static async createPerson(req, res) {
         const person = req.body
         try {
-            const newPerson = await database.Person.create(person)
+            const newPerson = await peopleServices.createRegister(person)
             return res.status(201).json({ data: newPerson })
 
         } catch (err) {
@@ -47,9 +48,8 @@ module.exports = class Person {
         const { id } = req.params //same thing as req.params.id
         const info = req.body
         try {
-            await database.Person.update(info, { where: { id: Number(id) } })
-            const updatedPerson = await database.Person.findOne({ where: { id: Number(id) } })
-            return res.status(200).json({ data: updatedPerson })
+            await peopleServices.updateRegister(info, Number(id))
+            return res.status(200).json({ data: "Person Updated" })
 
         } catch (err) {
             return res.status(500).json({ data: err.message });
@@ -59,7 +59,7 @@ module.exports = class Person {
     static async deletePerson(req, res) {
         const { id } = req.params
         try {
-            await database.Person.destroy({ where: { id: Number(id) } })
+            await peopleServices.deleteRegister(Number(id))
             return res.status(200).json({ data: "Person deleted!" })
 
         } catch (err) {
@@ -148,6 +148,70 @@ module.exports = class Person {
             return res.status(200).json({ data: "Enrollment restored!", restoredEnrollment })
         } catch (err) {
             return res.status(500).json({ data: err.message })
+        }
+    }
+
+    static async deleteEnrollment(req, res) {
+        const { studentId, enrollmentId } = req.params
+        try {
+            const enrollment = await database.Enrollment.destroy({ where: { id: Number(enrollmentId) } })
+            return res.status(200).json({ data: "Enrollment Deleted!" })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
+
+    static async getEnrollments(req, res) {
+        const { studentId } = req.params
+        try {
+            const person = await database.Person.findOne({ where: { id: Number(studentId) } })
+            const allEnrollments = await person.getPeopleEnrolled()
+            return res.status(200).json({ data: allEnrollments })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
+
+    static async getEnrollmentByClass(req, res) {
+        const { classId } = req.params
+        try {
+            const enrollments = await database.Enrollment.findAndCountAll({
+                where: {
+                    class_id: Number(classId),
+                    status: "confirmed"
+                }
+            })
+            return res.status(200).json({ data: enrollments })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
+
+    static async getFullClasses(req, res) {
+        const studentLimit = 2;
+        try {
+            const fullClasses = await database.Enrollment.findAndCountAll({
+                where: {
+                    status: "confirmed"
+                },
+                attributes: ['class_id'],
+                group: ['class_id'],
+                having: Sequelize.literal(`count(class_id) >= ${studentLimit}`)
+            })
+            return res.status(200).json({ data: fullClasses.count })
+        } catch (err) {
+            return res.status(500).json({ data: err.message })
+        }
+    }
+
+    static async cancelPerson(req, res) {
+        const { studentId } = req.params
+        try {
+            await peopleServices.cancelPersonAndEnrollement(Number(studentId))
+            return res.status(200).json({ data: "Enrollment Canceled!" })
+
+        } catch (err) {
+            return res.status(200).json({ data: err.message })
         }
     }
 }

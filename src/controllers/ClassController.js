@@ -1,9 +1,17 @@
-const database = require("../models/index.js")
+const { ClassesServices } = require("../services")
+const classesService = new ClassesServices()
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 module.exports = class Classes {
     static async getClasses(req, res) {
+        const { initial_date, final_date } = req.query
+        const where = {}
+        initial_date || final_date ? where.date = {} : null
+        initial_date ? where.date[Op.gte] = initial_date : null
+        final_date ? where.date[Op.lte] = final_date : null
         try {
-            const allClasses = await database.Class.findAll()
+            const allClasses = await classesService.getFilterRegisters(where)
             return res.status(200).json({ data: allClasses })
         } catch (err) {
             return res.status(500).json({ data: err.message })
@@ -13,7 +21,7 @@ module.exports = class Classes {
     static async getClass(req, res) {
         const { id } = req.params
         try {
-            const oneClass = await database.Class.findOne({ where: { id: Number(id) } })
+            const oneClass = await classesService.getOneRegister(Number(id))
             return res.status(200).json({ data: oneClass })
         } catch (err) {
             res.status(500).json({ data: err.message })
@@ -23,7 +31,7 @@ module.exports = class Classes {
     static async createClass(req, res) {
         const info = req.body
         try {
-            const newClass = await database.Class.create(info)
+            const newClass = await classesService.createRegister(info)
             return res.status(201).json({ data: newClass })
         } catch (err) {
             res.status(500).json({ data: err.message })
@@ -34,9 +42,8 @@ module.exports = class Classes {
         const { id } = req.params
         const info = req.body
         try {
-            await database.Class.update(info, { where: { id: Number(id) } })
-            const updatedClass = await database.Class.findOne({ where: { id: Number(id) } })
-            return res.status(200).json({ data: updatedClass })
+            await classesService.updateRegister(info, Number(id))
+            return res.status(200).json({ data: "Class Updated!" })
         } catch (err) {
             return res.status(500).json({ data: err.message })
         }
@@ -45,7 +52,7 @@ module.exports = class Classes {
     static async deleteClass(req, res) {
         const { id } = req.params
         try {
-            await database.Class.destroy({ where: { id: Number(id) } })
+            await classesService.deleteRegister(Number(id))
             return res.status(200).json({ data: "Class Deleted!" })
         } catch (err) {
             return res.status(500).json({ data: err.message })
